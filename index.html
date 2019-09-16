@@ -13,14 +13,20 @@
   <!-- Le client récupère socket.io.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    var socket = io.connect('http://localhost:8080');
-    // on écoute l'arrivée de message
-    socket.on('message', function(message) {
+    /*
+   le socket se connecte par défaut à l'instanciation
+   si ce nest pas le cas, on peut faire var socket = io.connect()
+   */
+    var socket = io('http://localhost:8080');
+    // on écoute l'arrivée de message du serveur
+    socket.on('fromServer', function(message) {
       alert('Message du serveur : ' + message.content);
-    })
+    });
 
+    // envoi d'un message au serveur par click du bouton
     document.getElementById('ping').addEventListener('click', function(e) {
-      socket.emit('message', 'Message du client pour le serveur.');
+      // émission de l'évènement fromClient
+      socket.emit('fromClient', 'Message du client pour le serveur.');
     });
   </script>
 </body>

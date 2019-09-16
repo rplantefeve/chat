@@ -8,7 +8,7 @@ var server = http.createServer(function(req, res) {
   // A chque requête d'un client, on renvoit index.html
   fs.readFile(__dirname + '/index.html', 'utf-8', function(error, content) {
     // si erreur
-    if (err) {
+    if (error) {
       res.writeHead(500, {
         "Content-Type": "text/html"
       });
@@ -29,11 +29,11 @@ io.on('connection', function(socket) {
   // Quand un client se connecte, on le note dans la console
   console.log('Un client est connecté !');
   // envoi d'un message au client connecté
-  socket.emit('message', {
+  socket.emit('fromServer', {
     content: 'Vous êtes bien connecté !'
   });
   // écoute d'un message envoyé par le client
-  socket.on('message', function(message) {
+  socket.on('fromClient', function(message) {
     console.log('Message du client : ' + message);
   })
 });
