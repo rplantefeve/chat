@@ -32,6 +32,10 @@ io.on('connection', function(socket) {
   socket.emit('fromServer', {
     content: 'Vous êtes bien connecté !'
   });
+  // envoi d'un message à tous les autres clients
+  socket.broadcast.emit('fromServer', {
+    content: 'Un autre client que vous vient de se connecter !'
+  });
   // écoute d'un message envoyé par le client
   socket.on('fromClient', function(message) {
     console.log('Message du client : ' + message);
