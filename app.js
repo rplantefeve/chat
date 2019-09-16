@@ -6,7 +6,14 @@ var fs = require('fs');
 // Chargement du fichier index.html affiché au client
 var server = http.createServer(function(req, res) {
   // A chque requête d'un client, on renvoit index.html
-  fs.readFile('./index.html', 'utf-8', function(error, content) {
+  fs.readFile(__dirname + '/index.html', 'utf-8', function(error, content) {
+    // si erreur
+    if (err) {
+      res.writeHead(500, {
+        "Content-Type": "text/html"
+      });
+      return res.end('Erreur au chargement de index.html');
+    }
     res.writeHead(200, {
       "Content-Type": "text/html"
     });
@@ -14,20 +21,19 @@ var server = http.createServer(function(req, res) {
   });
 });
 
-// Chargement de socket.io
-var io = require('socket.io').listen(server);
+// Chargement de socket.io (équivalent à var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 
-// Quand un client se connecte, on le note dans la console
-io.sockets.on('connection', function(socket) {
+// Quand un client se connecte, on envoi un message au client
+io.on('connection', function(socket) {
+  // Quand un client se connecte, on le note dans la console
   console.log('Un client est connecté !');
-});
-
-// Quand un client se connecte, on le note dans la console
-io.sockets.on('connection', function(socket) {
   // envoi d'un message au client connecté
-  socket.emit('message', {content : 'Vous êtes bien connecté !'});
+  socket.emit('message', {
+    content: 'Vous êtes bien connecté !'
+  });
   // écoute d'un message envoyé par le client
-  socket.on('message',function(message) {
+  socket.on('message', function(message) {
     console.log('Message du client : ' + message);
   })
 });
