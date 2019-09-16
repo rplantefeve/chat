@@ -24,7 +24,12 @@ io.sockets.on('connection', function(socket) {
 
 // Quand un client se connecte, on le note dans la console
 io.sockets.on('connection', function(socket) {
+  // envoi d'un message au client connecté
   socket.emit('message', {content : 'Vous êtes bien connecté !'});
+  // écoute d'un message envoyé par le client
+  socket.on('message',function(message) {
+    console.log('Message du client : ' + message);
+  })
 });
 
 

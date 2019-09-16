@@ -8,6 +8,8 @@
 
 <body>
   <h1>Communication avec socket.io !</h1>
+  <!-- Bouton pour envoyer un message au serveur -->
+  <p><input type="button" value="Envoyer message" id="ping"></p>
   <!-- Le client récupère socket.io.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -16,6 +18,10 @@
     socket.on('message', function(message) {
       alert('Message du serveur : ' + message.content);
     })
+
+    document.getElementById('ping').addEventListener('click', function(e) {
+      socket.emit('message', 'Message du client pour le serveur.');
+    });
   </script>
 </body>
 
