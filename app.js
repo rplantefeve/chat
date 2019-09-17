@@ -38,7 +38,15 @@ io.on('connection', function(socket) {
   });
   // écoute d'un message envoyé par le client
   socket.on('fromClient', function(message) {
-    console.log('Message du client : ' + message);
+    // on le log
+    console.log('Message du client ' + message.qui + ' : ' + message.quoi);
+    // puis on broadcast à tout le monde (y compris l'expéditeur)
+    io.emit('message', message);
+  });
+
+  socket.on('initiate', function(userName) {
+    socket.userName = userName;
+    console.log('Authentification du client : ' + userName);
   })
 });
 

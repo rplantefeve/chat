@@ -8,8 +8,10 @@
 
 <body>
   <h1>Communication avec socket.io !</h1>
+  <p><input type="text" name="message" id="message"></p>
   <!-- Bouton pour envoyer un message au serveur -->
   <p><input type="button" value="Envoyer message" id="ping"></p>
+  <div id="chat"></div>
   <!-- Le client récupère socket.io.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -23,10 +25,19 @@
       alert('Message du serveur : ' + message.content);
     });
 
+    // demande du pseudo à l'utilisateur
+    var userName = prompt('Nom d\'utilisateur : ');
+    // envoi du pseudo au serveur
+    socket.emit('initiate', userName);
+
     // envoi d'un message au serveur par click du bouton
     document.getElementById('ping').addEventListener('click', function(e) {
+      var message = document.getElementById('message').value;
       // émission de l'évènement fromClient
-      socket.emit('fromClient', 'Message du client pour le serveur.');
+      socket.emit('fromClient', {
+        qui: userName,
+        quoi: message
+      });
     });
   </script>
 </body>
