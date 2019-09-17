@@ -32,10 +32,7 @@ io.on('connection', function(socket) {
   socket.emit('fromServer', {
     content: 'Vous êtes bien connecté !'
   });
-  // envoi d'un message à tous les autres clients
-  socket.broadcast.emit('fromServer', {
-    content: 'Un autre client que vous vient de se connecter !'
-  });
+
   // écoute d'un message envoyé par le client
   socket.on('fromClient', function(message) {
     // on le log
@@ -47,6 +44,10 @@ io.on('connection', function(socket) {
   socket.on('initiate', function(userName) {
     socket.userName = userName;
     console.log('Authentification du client : ' + userName);
+    // envoi d'un message à tous les autres clients
+    socket.broadcast.emit('fromServer', {
+      content: userName + ' vient de se connecter !'
+    });
   })
 });
 
