@@ -4,11 +4,17 @@
 <head>
   <meta charset="utf-8" />
   <title>Socket.io</title>
+  <style>
+    span.qui {
+      font-style: italic;
+    }
+  </style>
 </head>
 
 <body>
   <h1>Communication avec socket.io !</h1>
-  <p><input type="text" name="message" id="message"></p>
+  <p>
+    <input type="text" name="message" id="message"></p>
   <!-- Bouton pour envoyer un message au serveur -->
   <p><input type="button" value="Envoyer message" id="ping"></p>
   <div id="chat"></div>
@@ -23,6 +29,28 @@
     // on écoute l'arrivée de message du serveur
     socket.on('fromServer', function(message) {
       alert('Message du serveur : ' + message.content);
+    });
+
+    // on écoute s'il y a broadcast
+    socket.on('message', function(message) {
+      // on récup les infos
+      let qui_text = document.createTextNode(message.qui);
+      let quoi_text = document.createTextNode(message.quoi);
+      // manipulation du DOM
+      let div = document.getElementById('chat');
+      let p = document.createElement('p');
+      let qui_container = document.createElement('span');
+      // ajout du style
+      qui_container.className = 'qui';
+      // ajout du texte
+      qui_container.appendChild(qui_text);
+      // ajout du qui au paragraphe
+      p.appendChild(qui_container);
+      // ajout du texte
+      p.appendChild(quoi_text);
+      // le paragraphe est prêt, ajout à la div du chat
+      div.appendChild(p);
+
     });
 
     // demande du pseudo à l'utilisateur
