@@ -36,6 +36,11 @@ io.on('connection', function(socket) {
     content: 'Vous êtes bien connecté !'
   });
 
+  //si un client se déconnecte
+  socket.on('disconnect', function() {
+    console.log(socket.userName + ' s\'est déconnecté !');
+  })
+
   // écoute d'un message envoyé par le client
   socket.on('fromClient', function(message) {
     // on le log
