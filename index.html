@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Socket.io</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 80%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 19%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    span.qui {
+      font-style: italic;
+      background-color: #458798;
+      margin-right: 0.5%;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #messages {
+      margin-bottom: 40px
+    }
+  </style>
+</head>
+
+<body>
+  <ul id="messages"></ul>
+  <form action="#">
+    <input type="text" id="message" autocomplete="off" /><button>Envoyer</button>
+  </form>
+  <!-- using JQuery -->
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <!-- Le client récupère socket.io.js -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    /*
+   le socket se connecte par défaut à l'instanciation
+   si ce n'est pas le cas, on peut faire :
+   var socket = io.connect()
+   */
+    var socket = io('http://localhost:8080');
+
+    // on écoute l'arrivée de message du serveur
+    socket.on('fromServer', function(message) {
+      // manipulation du DOM avec jQuery
+      $('#messages').append('<li>' + message.content + '</li>');
+      // auto scrolling
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    // on écoute s'il y a broadcast
+    socket.on('message', function(message) {
+      // manipulation du DOM avec jQuery
+      $('#messages').append('<li><span class="qui">' + message.qui + '</span>' + message.quoi + '</li>');
+      // auto scrolling
+      window.scrollTo(0, document.body.scrollHeight);
+
+    });
+
+    // demande du pseudo à l'utilisateur
+    var userName = prompt('Nom d\'utilisateur : ');
+    // envoi du pseudo au serveur
+    socket.emit('initiate', userName);
+
+    // envoi d'un message au serveur par submit du formulaire
+    $('form').submit(function(e) {
+      // Le formulaire ne doit pas s'envoyer afin d'empêcher le refresh
+      e.preventDefault();
+      // manip du DOM
+      var message = $('#message').val();
+      // émission de l'évènement fromClient
+      socket.emit('fromClient', {
+        qui: userName,
+        quoi: message
+      });
+      // réinit du message et focus sur l'input text
+      $('#message').val('').focus();
+      // on empêche la soumission du formulaire
+      return false;
+    });
+  </script>
+</body>
+
+</html>
