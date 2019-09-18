@@ -4,14 +4,70 @@
 <head>
   <meta charset="utf-8" />
   <title>Socket.io</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 80%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 19%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    span.qui {
+      font-style: italic;
+      background-color: #458798;
+      margin-right: 0.5%;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #messages {
+      margin-bottom: 40px
+    }
+  </style>
 </head>
 
 <body>
-  <h1>Communication avec socket.io !</h1>
-  <p><input type="text" name="message" id="message"></p>
-  <!-- Bouton pour envoyer un message au serveur -->
-  <p><input type="button" value="Envoyer message" id="ping"></p>
-  <div id="chat"></div>
+  <ul id="messages"></ul>
+  <form action="#">
+    <input type="text" id="message" autocomplete="off" /><button>Envoyer</button>
+  </form>
   <!-- Le client récupère socket.io.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -22,7 +78,41 @@
     var socket = io('http://localhost:8080');
     // on écoute l'arrivée de message du serveur
     socket.on('fromServer', function(message) {
-      alert('Message du serveur : ' + message.content);
+      // on récup les infos
+      let quoi_text = document.createTextNode(message.content);
+      // manipulation du DOM
+      let ul = document.getElementById('messages');
+      let li = document.createElement('li');
+      // ajout du texte
+      li.appendChild(quoi_text);
+      // le paragraphe est prêt, ajout à la liste ul du chat
+      ul.appendChild(li);
+      // auto scrolling
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    // on écoute s'il y a broadcast
+    socket.on('message', function(message) {
+      // on récup les infos
+      let qui_text = document.createTextNode(message.qui);
+      let quoi_text = document.createTextNode(message.quoi);
+      // manipulation du DOM
+      let ul = document.getElementById('messages');
+      let li = document.createElement('li');
+      let qui_container = document.createElement('span');
+      // ajout du style
+      qui_container.className = 'qui';
+      // ajout du texte
+      qui_container.appendChild(qui_text);
+      // ajout du qui au paragraphe
+      li.appendChild(qui_container);
+      // ajout du texte
+      li.appendChild(quoi_text);
+      // le paragraphe est prêt, ajout à la liste ul du chat
+      ul.appendChild(li);
+      // auto scrolling
+      window.scrollTo(0, document.body.scrollHeight);
+
     });
 
     // demande du pseudo à l'utilisateur
@@ -30,14 +120,20 @@
     // envoi du pseudo au serveur
     socket.emit('initiate', userName);
 
-    // envoi d'un message au serveur par click du bouton
-    document.getElementById('ping').addEventListener('click', function(e) {
-      var message = document.getElementById('message').value;
+    // envoi d'un message au serveur par submit du formulaire
+    document.querySelector('form').addEventListener('submit', function(e) {
+      // Le formulaire ne doit pas s'envoyer afin d'empêcher le refresh
+      e.preventDefault();
+      var messageContainer = document.getElementById('message');
       // émission de l'évènement fromClient
       socket.emit('fromClient', {
         qui: userName,
-        quoi: message
+        quoi: messageContainer.value
       });
+      // réinit du message
+      messageContainer.value = '';
+      // on empêche la soumission du formulaire
+      return false;
     });
   </script>
 </body>

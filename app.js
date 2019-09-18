@@ -1,12 +1,22 @@
-// pas d'utilisation d'express pour l'instant
-var http = require('http');
+// instanciation de l'application
+var app = require('express')();
+/*
+ création du serveur HTTP. Pourrait s'ecrire aussi :
+ var http = require('http').Server(app);
+ */
+var http = require('http').createServer(app);
+/*
+ Chargement de socket.io. Equivalent à :
+ var io = require('socket.io').listen(server);
+*/
+var io = require('socket.io')(http);
 // accès au système de fichiers
 var fs = require('fs');
 
 // Chargement du fichier index.html affiché au client
-var server = http.createServer(function(req, res) {
+app.get('/', function(req, res) {
   // A chque requête d'un client, on renvoit index.html
-  fs.readFile(__dirname + '/index.html', 'utf-8', function(error, content) {
+  res.sendFile(__dirname + '/index.html', 'utf-8', function(error) {
     // si erreur
     if (error) {
       res.writeHead(500, {
@@ -14,15 +24,8 @@ var server = http.createServer(function(req, res) {
       });
       return res.end('Erreur au chargement de index.html');
     }
-    res.writeHead(200, {
-      "Content-Type": "text/html"
-    });
-    res.end(content);
   });
 });
-
-// Chargement de socket.io (équivalent à var io = require('socket.io').listen(server);
-var io = require('socket.io')(server);
 
 // Quand un client se connecte, on envoi un message au client
 io.on('connection', function(socket) {
@@ -32,10 +35,7 @@ io.on('connection', function(socket) {
   socket.emit('fromServer', {
     content: 'Vous êtes bien connecté !'
   });
-  // envoi d'un message à tous les autres clients
-  socket.broadcast.emit('fromServer', {
-    content: 'Un autre client que vous vient de se connecter !'
-  });
+
   // écoute d'un message envoyé par le client
   socket.on('fromClient', function(message) {
     // on le log
@@ -47,8 +47,14 @@ io.on('connection', function(socket) {
   socket.on('initiate', function(userName) {
     socket.userName = userName;
     console.log('Authentification du client : ' + userName);
+    // envoi d'un message à tous les autres clients
+    socket.broadcast.emit('fromServer', {
+      content: userName + ' vient de se connecter !'
+    });
   })
 });
 
-
-server.listen(8080);
+// app.listen ne fonctionnerait pas
+http.listen(8080,function() {
+  console.log('Ecoute sur : *:8080');
+});
