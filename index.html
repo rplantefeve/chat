@@ -68,48 +68,30 @@
   <form action="#">
     <input type="text" id="message" autocomplete="off" /><button>Envoyer</button>
   </form>
+  <!-- using JQuery -->
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <!-- Le client récupère socket.io.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
     /*
    le socket se connecte par défaut à l'instanciation
-   si ce nest pas le cas, on peut faire var socket = io.connect()
+   si ce n'est pas le cas, on peut faire :
+   var socket = io.connect()
    */
     var socket = io('http://localhost:8080');
+
     // on écoute l'arrivée de message du serveur
     socket.on('fromServer', function(message) {
-      // on récup les infos
-      let quoi_text = document.createTextNode(message.content);
-      // manipulation du DOM
-      let ul = document.getElementById('messages');
-      let li = document.createElement('li');
-      // ajout du texte
-      li.appendChild(quoi_text);
-      // le paragraphe est prêt, ajout à la liste ul du chat
-      ul.appendChild(li);
+      // manipulation du DOM avec jQuery
+      $('#messages').append('<li>' + message.content + '</li>');
       // auto scrolling
       window.scrollTo(0, document.body.scrollHeight);
     });
 
     // on écoute s'il y a broadcast
     socket.on('message', function(message) {
-      // on récup les infos
-      let qui_text = document.createTextNode(message.qui);
-      let quoi_text = document.createTextNode(message.quoi);
-      // manipulation du DOM
-      let ul = document.getElementById('messages');
-      let li = document.createElement('li');
-      let qui_container = document.createElement('span');
-      // ajout du style
-      qui_container.className = 'qui';
-      // ajout du texte
-      qui_container.appendChild(qui_text);
-      // ajout du qui au paragraphe
-      li.appendChild(qui_container);
-      // ajout du texte
-      li.appendChild(quoi_text);
-      // le paragraphe est prêt, ajout à la liste ul du chat
-      ul.appendChild(li);
+      // manipulation du DOM avec jQuery
+      $('#messages').append('<li><span class="qui">' + message.qui + '</span>' + message.quoi + '</li>');
       // auto scrolling
       window.scrollTo(0, document.body.scrollHeight);
 
@@ -121,17 +103,18 @@
     socket.emit('initiate', userName);
 
     // envoi d'un message au serveur par submit du formulaire
-    document.querySelector('form').addEventListener('submit', function(e) {
+    $('form').submit(function(e) {
       // Le formulaire ne doit pas s'envoyer afin d'empêcher le refresh
       e.preventDefault();
-      var messageContainer = document.getElementById('message');
+      // manip du DOM
+      var message = $('#message').val();
       // émission de l'évènement fromClient
       socket.emit('fromClient', {
         qui: userName,
-        quoi: messageContainer.value
+        quoi: message
       });
-      // réinit du message
-      messageContainer.value = '';
+      // réinit du message et focus sur l'input text
+      $('#message').val('').focus();
       // on empêche la soumission du formulaire
       return false;
     });
